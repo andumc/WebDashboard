@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Select Root</title>
+<link rel="icon" href="/dashboard.ico">
+<style>
+body{background:#1a1a1a;color:white;font-family:Arial;text-align:center;padding-top:120px}
+button{padding:20px 50px;margin:20px;background:#ff9900;border:none;border-radius:12px;font-size:20px;cursor:pointer}
+</style>
+</head>
+<body>
+<h1>Select File Root</h1>
+{% for key, path in roots.items() %}
+<button onclick="window.location.href='/files/{{ key }}'">{{ key }}</button>
+{% endfor %}
+</body>
+</html>
