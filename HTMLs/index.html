@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<link rel="icon" href="/dashboard.ico">
+<style>
+body{background:#1a1a1a;color:white;font-family:Arial;padding:30px}.card{background:#2a2a2a;padding:18px;border-radius:12px;margin:12px 0}a{color:#ff9900;text-decoration:none}
+</style>
+</head>
+<body>
+<h1>Web Dashboard</h1>
+<p><a href="/files">Open File Browser</a> | <a href="/logout">Logout</a></p>
+{% for sid, server in servers.items() %}
+<div class="card"><a href="/server/{{ sid }}">{{ server.name }}</a></div>
+{% endfor %}
+</body>
+</html>
