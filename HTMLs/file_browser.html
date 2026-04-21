@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>File Browser</title>
+<link rel="icon" href="/dashboard.ico">
+<style>
+body{background:#1a1a1a;color:white;font-family:Arial;padding:30px}
+a{color:#ff9900;text-decoration:none;display:block;padding:8px 0}
+</style>
+</head>
+<body>
+<h1>File Browser</h1>
+<p><a href="/files">Back</a></p>
+{% for i in items %}
+{% if i.is_dir %}
+<a href="/files/{{ root }}/{{ i.rel }}">[DIR] {{ i.name }}</a>
+{% else %}
+<a href="/edit/{{ root }}/{{ i.rel }}">{{ i.name }}</a>
+{% endif %}
+{% endfor %}
+</body>
+</html>
