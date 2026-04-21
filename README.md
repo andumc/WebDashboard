@@ -1,2 +1,38 @@
 # WebDashboard
-A self-hosted web dashboard for managing and monitoring a private Minecraft network, including server control, console access, configuration management, and file browsing.
+
+WebDashboard is a self-hosted management panel for a private Minecraft network. It is designed to provide a central place for monitoring server status, controlling local and remote servers, browsing and editing files, and managing common operational tasks through a web interface.
+
+The project is primarily focused on simplifying day-to-day network administration for a custom Minecraft setup, while keeping the workflow lightweight, practical, and tailored to a personal infrastructure environment.
+
+## Current Features
+
+- Web-based login system with session token handling
+- Dashboard view for monitoring multiple Minecraft servers
+- Start, stop, and restart actions for local servers
+- Support for remote agents to integrate and control servers on other machines
+- RCON-based command execution for supported servers
+- Console log viewing with optional filtering
+- Server property and configuration file editing
+- File browser with separate dashboard and server roots
+- Direct file editing for common text-based formats
+- File download support from the integrated browser
+- Proxy aggregation for combined player counts across lobby servers
+- Per-server detail pages for management and monitoring
+- PID file handling for the web service process
+
+## Planned Features
+
+- Improved management page with dedicated start, stop, and restart controls
+- RCON stability and reliability improvements
+- Uptime tracking based on the first detected message in `latest.log`
+- Route fixes for the editor and management pages
+- Enhanced file browser selection handling
+- ZIP creation and download support in the file browser
+- Quick links from servers to their corresponding folders
+- Integrated HTML editing improvements
+- Better dashboard uptime display matching the management page
+- Server administration tools for adding, editing, and removing managed servers
+
+## Project Goal
+
+The goal of this project is to evolve into a more complete private control panel for Minecraft network operations, combining practical monitoring, server lifecycle management, configuration access, and file-level administration in a single self-hosted interface.
