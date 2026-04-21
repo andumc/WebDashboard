@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Editor</title>
+<link rel="icon" href="/dashboard.ico">
+<style>
+body{background:#1a1a1a;color:white;font-family:Arial;margin:0}.top{background:#222;padding:15px}textarea{width:100%;height:calc(100vh - 60px);background:#111;color:white;border:none;padding:15px;font-family:Consolas;box-sizing:border-box;}button{padding:10px 20px;background:#ff9900;border:none;border-radius:8px;margin-right:10px;cursor:pointer}
+</style>
+</head>
+<body>
+<form method="POST" action="/save/{{ root }}/{{ path }}">
+<div class="top"><button type="button" onclick="window.location.href='/files/{{ root }}'">Back</button><button type="submit">Save</button></div>
+<textarea name="content">{{ content }}</textarea>
+</form>
+</body>
+</html>
