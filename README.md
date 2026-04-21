@@ -32,6 +32,11 @@ The project is primarily focused on simplifying day-to-day network administratio
 - Integrated HTML editing improvements
 - Better dashboard uptime display matching the management page
 - Server administration tools for adding, editing, and removing managed servers
+- A visual server settings editor inspired by panels such as Aternos
+- Toggle-based controls for boolean `server.properties` values
+- Dedicated inputs for MOTD, max player count, and other common server settings
+- Dropdowns and validated fields for frequently edited configuration options
+- Save workflows with cleaner editing UX for common server configuration tasks
 
 ## Project Goal
 
