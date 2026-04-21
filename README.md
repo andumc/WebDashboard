@@ -4,6 +4,10 @@ WebDashboard is a self-hosted management panel for a private Minecraft network. 
 
 The project is primarily focused on simplifying day-to-day network administration for a custom Minecraft setup, while keeping the workflow lightweight, practical, and tailored to a personal infrastructure environment.
 
+## Important Note
+
+The installer may not be working yet. If setup fails, please assume the installer is still unfinished and may require manual setup for now.
+
 ## Current Features
 
 - Web-based login system with session token handling
