@@ -1,80 +1,109 @@
 # WebDashboard
 
-> A self-hosted control panel for managing a private Minecraft network.
+<div align="center">
+
+# WebDashboard
+
+### Self-hosted Minecraft Network Control Panel
+
+![Status](https://img.shields.io/badge/Status-Active_Development-brightgreen)
+![Platform](https://img.shields.io/badge/Platform-Windows-blue)
+![Backend](https://img.shields.io/badge/Backend-Python-yellow)
+![Frontend](https://img.shields.io/badge/UI-Web_Interface-orange)
+![Use Case](https://img.shields.io/badge/Use_Private_Networks-red)
+
+*A lightweight all-in-one panel for monitoring, controlling, and managing Minecraft infrastructure.*
+
+</div>
 
 ---
 
 ## Overview
 
-WebDashboard is a lightweight management panel built for private Minecraft infrastructure. It provides a central place to monitor server status, control local and remote instances, browse and edit files, and handle common operational tasks through a clean web interface.
+WebDashboard is a self-hosted web panel designed for private Minecraft networks. It centralizes server management into one interface, allowing fast operational control, monitoring, file access, and administration across local and remote systems.
 
-The project focuses on practical day-to-day administration while staying flexible, efficient, and tailored to custom network environments.
-
----
-
-## Important Note
-
-> The installer may not be fully functional yet.  
-> If setup fails, manual installation may still be required.
+Built with practicality in mind, the project focuses on giving small private networks the type of tools usually reserved for large commercial hosting panels.
 
 ---
 
-## Current Features
+## Core Features
 
-### Server Management
-- Dashboard for monitoring multiple Minecraft servers
-- Start, stop, and restart controls for local servers
-- Per-server detail pages for management and monitoring
-- Proxy aggregation for combined player counts across lobby servers
-- Support for remote agents on external machines
+### Server Control
+- Multi-server live dashboard
+- Start / Stop / Restart actions
+- Individual management pages
+- Combined lobby player counters
+- Remote agent support for external hosts
 
-### Administration Tools
-- Web-based login system with session token handling
-- RCON command execution for supported servers
-- Console log viewing with optional filtering
-- PID file handling for the web service process
+### Monitoring & Logs
+- Live status checks
+- Console log viewer
+- Filtered log inspection
+- PID process handling
+- Planned uptime analytics
 
-### File Management
-- File browser with separate dashboard and server roots
-- Direct editing for common text-based formats
-- Configuration and `server.properties` editing
-- Integrated file downloads
+### Administration
+- Secure login with token sessions
+- RCON command execution
+- Fast access to network operations
+- Centralized management workflows
 
----
-
-## Planned Features
-
-### Core Improvements
-- Improved management page with dedicated lifecycle controls
-- Better dashboard uptime display matching management pages
-- Route fixes for editor and management views
-- RCON stability and reliability improvements
-
-### File Browser Upgrades
-- ZIP creation and download support
-- Quick links from servers to matching folders
-- Enhanced file browser selection handling
-- Integrated HTML editing improvements
-
-### Server Configuration Tools
-- Add, edit, and remove managed servers from the panel
-- Visual settings editor inspired by hosting panels such as Aternos
-- Toggle controls for boolean `server.properties` values
-- Dedicated inputs for MOTD, max player count, and common settings
-- Dropdowns and validated fields for frequent configuration values
-- Cleaner save workflows and editing UX
-
-### Monitoring
-- Uptime tracking based on the first detected message in `latest.log`
+### File System Tools
+- Built-in file browser
+- Separate dashboard + server roots
+- Direct text file editing
+- Config & `server.properties` editing
+- Download support
+- Planned ZIP exports
 
 ---
 
-## Project Goal
+## Roadmap
 
-The goal of WebDashboard is to become a complete private control panel for Minecraft network operations — combining monitoring, lifecycle management, configuration access, and file administration in one self-hosted platform.
+### In Progress
+- Improved management page layout
+- Route cleanup for editor pages
+- Better RCON reliability
+- Cleaner uptime display
+
+### Planned Next Steps
+- Full server editor / creator
+- Visual config editor
+- Boolean toggle switches
+- MOTD / slots / gameplay quick settings
+- Folder shortcuts from dashboard
+- Better HTML editing workflow
+- Advanced file browser actions
 
 ---
 
-## Status
+## Why WebDashboard?
 
-Actively developed and evolving.
+Most Minecraft panels are designed for hosting providers or public use. WebDashboard is built differently:
+
+- Designed for private owners
+n- Lightweight and practical
+- Fast direct control over your own machines
+- Easy to customize and extend
+- No unnecessary bloat
+
+---
+
+## Installation Notice
+
+> The automated installer may still be unfinished.  
+> If setup does not work yet, manual installation may be required.
+
+---
+
+## Vision
+
+WebDashboard aims to become a modern private network operations panel — combining infrastructure control, file management, configuration editing, and monitoring in one clean self-hosted system.
+
+---
+
+<div align="center">
+
+### Actively Developed 🚀
+
+</div>
