@@ -1,5 +1,3 @@
-# WebDashboard
-
 <div align="center">
 
 # WebDashboard
@@ -10,21 +8,17 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Backend](https://img.shields.io/badge/Backend-Python-yellow)
 ![Frontend](https://img.shields.io/badge/UI-Web_Interface-orange)
-![Use Case](https://img.shields.io/badge/Use_Private_Networks-red)
+![Use Case](https://img.shields.io/badge/Use-Private_Networks-red)
 
 *A lightweight all-in-one panel for monitoring, controlling, and managing Minecraft infrastructure.*
 
 </div>
-
----
 
 ## Overview
 
 WebDashboard is a self-hosted web panel designed for private Minecraft networks. It centralizes server management into one interface, allowing fast operational control, monitoring, file access, and administration across local and remote systems.
 
 Built with practicality in mind, the project focuses on giving small private networks the type of tools usually reserved for large commercial hosting panels.
-
----
 
 ## Core Features
 
@@ -56,8 +50,6 @@ Built with practicality in mind, the project focuses on giving small private net
 - Download support
 - Planned ZIP exports
 
----
-
 ## Roadmap
 
 ### In Progress
@@ -75,35 +67,22 @@ Built with practicality in mind, the project focuses on giving small private net
 - Better HTML editing workflow
 - Advanced file browser actions
 
----
-
 ## Why WebDashboard?
 
 Most Minecraft panels are designed for hosting providers or public use. WebDashboard is built differently:
 
 - Designed for private owners
-n- Lightweight and practical
+- Lightweight and practical
 - Fast direct control over your own machines
 - Easy to customize and extend
 - No unnecessary bloat
 
----
-
 ## Installation Notice
 
+> [!NOTE]
 > The automated installer may still be unfinished.  
 > If setup does not work yet, manual installation may be required.
-
----
 
 ## Vision
 
 WebDashboard aims to become a modern private network operations panel — combining infrastructure control, file management, configuration editing, and monitoring in one clean self-hosted system.
-
----
-
-<div align="center">
-
-### Actively Developed 🚀
-
-</div>
