@@ -2,6 +2,10 @@
 
 Central panel for WOX agents.
 
+## Default Network Layout
+- Master: 192.168.178.40:8000
+- Agent/Slave: 192.168.178.38:8001
+
 ## Install
 ```bash
 cd WOX-Master
