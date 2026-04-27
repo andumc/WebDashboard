@@ -1,0 +1,12 @@
+[Unit]
+Description=WOX Dashboard
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/WOX-Dashboard-V2
+ExecStart=/usr/bin/python3 /opt/WOX-Dashboard-V2/app.py
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
