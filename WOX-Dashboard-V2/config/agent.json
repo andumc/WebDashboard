@@ -1,0 +1,6 @@
+{
+  "node_name": "i7server",
+  "master_url": "http://MASTER-IP:8000",
+  "agent_token": "change-me-now",
+  "allowed_services": ["proxy", "lobby1", "lobby2"]
+}
