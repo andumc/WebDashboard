@@ -1,17 +1,26 @@
-# WOX Dashboard V2 (Debian Edition)
+# WOX Dashboard V2 -> Agent Node Edition
 
-Linux-native version of the WebDashboard.
+This folder now runs as a Linux agent node.
 
-## Includes
-- Flask backend
-- systemd integration
-- Server control
-- File browser
-- Editor
-- Stats panel
+## Features
+- Flask API agent
+- Token auth
+- CPU / RAM / Disk status
+- Allowed systemd service control
+- Heartbeat to future master panel
+- Debian venv installer
 
 ## Install
 ```bash
 git clone https://github.com/andumc/WebDashboard.git
 cd WebDashboard/WOX-Dashboard-V2
+chmod +x scripts/install_debian.sh
+./scripts/install_debian.sh
 ```
+
+## API
+- /api/health
+- /api/status
+- /api/services
+- /api/services/<service>/<action>
+- /api/master/ping
