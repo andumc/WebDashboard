@@ -1,12 +1,13 @@
 [Unit]
-Description=WOX Dashboard
+Description=WOX Agent Node
 After=network.target
 
 [Service]
 WorkingDirectory=/opt/WOX-Dashboard-V2
-ExecStart=/usr/bin/python3 /opt/WOX-Dashboard-V2/app.py
+ExecStart=/opt/WOX-Dashboard-V2/venv/bin/python /opt/WOX-Dashboard-V2/app.py
 Restart=always
 User=root
+Environment=WOX_AGENT_PORT=8001
 
 [Install]
 WantedBy=multi-user.target
