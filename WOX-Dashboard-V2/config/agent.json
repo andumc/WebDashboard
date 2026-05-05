@@ -1,7 +1,0 @@
-{
-  "node_name": "agent-38",
-  "node_ip": "192.168.178.38",
-  "master_url": "http://192.168.178.40:8000",
-  "agent_token": "change-me-now",
-  "allowed_services": ["proxy", "lobby1", "lobby2"]
-}
