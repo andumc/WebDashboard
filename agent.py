@@ -3,15 +3,11 @@ import os
 import subprocess
 import time
 import socket
-import random
-import string
 import re
 import json
 import shutil
 import atexit
-from functools import wraps
-
-from flask import Flask, jsonify, request, send_from_directory, send_file, abort
+from flask import Flask, jsonify, request
 from mcrcon import MCRcon
 
 app = Flask(__name__)
@@ -43,6 +39,12 @@ DEFAULT_INSTALLERS = [
         "start_content": "java -Xms512M -Xmx1G -jar server.jar\r\npause\r\n",
     },
 ]
+
+EXCLUDED_SERVER_DIRS = {
+    "web dashboard",
+    "system volume information",
+    "$recycle.bin",
+}
 
 
 def write_pid_file():
@@ -81,22 +83,136 @@ def write_json_txt(path, data):
         json.dump(data, f, indent=2)
 
 
-def load_servers():
-    servers = read_json_txt(SERVER_LIST_FILE, DEFAULT_SERVERS)
+def sanitize_server_id(value):
+    value = (value or "").strip().lower()
+    value = re.sub(r"[^a-z0-9_-]+", "-", value)
+    value = value.strip("-")
+    return value
+
+
+def read_properties(path):
+    props = {}
+    if not os.path.exists(path):
+        return props
+    with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            props[key.strip()] = value.strip()
+    return props
+
+
+def detect_jar_name(folder_path):
+    try:
+        jars = [name for name in os.listdir(folder_path) if name.lower().endswith(".jar")]
+    except Exception:
+        return "server.jar"
+    if "server.jar" in jars:
+        return "server.jar"
+    return jars[0] if jars else "server.jar"
+
+
+def ensure_start_bat(folder_path):
+    bat_path = os.path.join(folder_path, "start.bat")
+    if os.path.exists(bat_path):
+        return "start.bat"
+    jar_name = detect_jar_name(folder_path)
+    jar_path = os.path.join(folder_path, jar_name)
+    if not os.path.exists(jar_path):
+        return "start.bat"
+    with open(bat_path, "w", encoding="utf-8", newline="") as f:
+        f.write(f"java -Xms1G -Xmx4G -jar {jar_name} nogui\r\npause\r\n")
+    return "start.bat"
+
+
+def discover_servers_from_folders(existing_servers=None):
+    existing_servers = existing_servers or {}
+    discovered = {}
+    if not os.path.isdir(BASE_PATH):
+        return discovered
+
+    for name in sorted(os.listdir(BASE_PATH)):
+        folder_path = os.path.join(BASE_PATH, name)
+        if not os.path.isdir(folder_path):
+            continue
+        if name.lower() in EXCLUDED_SERVER_DIRS:
+            continue
+
+        server_id = sanitize_server_id(name)
+        if not server_id or server_id in existing_servers:
+            continue
+
+        props_path = os.path.join(folder_path, "server.properties")
+        velocity_path = os.path.join(folder_path, "velocity.toml")
+        has_props = os.path.exists(props_path)
+        has_velocity = os.path.exists(velocity_path)
+        has_start = os.path.exists(os.path.join(folder_path, "start.bat"))
+        has_jar = any(x.lower().endswith(".jar") for x in os.listdir(folder_path))
+
+        if not (has_props or has_velocity or has_start or has_jar):
+            continue
+
+        props = read_properties(props_path)
+        server_type = "velocity" if has_velocity or "velocity" in name.lower() else "paper"
+        start_bat = ensure_start_bat(folder_path)
+
+        discovered[server_id] = {
+            "name": name,
+            "path": folder_path,
+            "start_bat": start_bat,
+            "rcon_port": int(props.get("rcon.port") or 25575),
+            "rcon_password": props.get("rcon.password") or "change-me",
+            "minecraft_port": int(props.get("server-port") or 25565),
+            "minecraft_host": "127.0.0.1",
+            "rcon_host": "127.0.0.1",
+            "rcon_name": f"{server_id}-rcon",
+            "installer_id": "velocity" if server_type == "velocity" else "paper",
+            "type": server_type,
+            "remote": False,
+            "discovered": True,
+        }
+    return discovered
+
+
+def normalize_server_defaults(servers):
     for sid, server in servers.items():
+        server.setdefault("name", sid)
+        server.setdefault("path", os.path.join(BASE_PATH, server["name"]))
         server.setdefault("remote", False)
         server.setdefault("minecraft_host", "127.0.0.1")
         server.setdefault("rcon_host", "127.0.0.1")
         server.setdefault("start_bat", "start.bat")
+        server.setdefault("rcon_name", f"{sid}-rcon")
+        server.setdefault("installer_id", "")
+        server.setdefault("type", "paper")
+    return servers
+
+
+def load_servers():
+    servers = read_json_txt(SERVER_LIST_FILE, DEFAULT_SERVERS)
+    if not isinstance(servers, dict):
+        servers = {}
+
+    servers = normalize_server_defaults(servers)
+    discovered = discover_servers_from_folders(servers)
+
+    if discovered:
+        servers.update(discovered)
+        # Auto-fill servers.txt so old folder-based servers become managed entries.
+        save_servers(servers)
+
     return servers
 
 
 def save_servers(servers):
-    write_json_txt(SERVER_LIST_FILE, servers)
+    write_json_txt(SERVER_LIST_FILE, normalize_server_defaults(servers))
 
 
 def load_installers():
-    return read_json_txt(INSTALLER_LIST_FILE, DEFAULT_INSTALLERS)
+    installers = read_json_txt(INSTALLER_LIST_FILE, DEFAULT_INSTALLERS)
+    return installers if isinstance(installers, list) else DEFAULT_INSTALLERS
 
 
 def installer_by_id(installer_id):
@@ -104,13 +220,6 @@ def installer_by_id(installer_id):
         if installer.get("id") == installer_id:
             return installer
     return None
-
-
-def sanitize_server_id(value):
-    value = (value or "").strip().lower()
-    value = re.sub(r"[^a-z0-9_-]+", "-", value)
-    value = value.strip("-")
-    return value
 
 
 def get_config_path(server_id, server):
