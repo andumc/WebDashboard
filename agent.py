@@ -15,12 +15,12 @@ app = Flask(__name__)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # IMPORTANT:
-# Old agent versions used E:\ as BASE_PATH. Newer dashboard-local setups often use
-# C:\Users\Administrator\Desktop\MC Server. We scan both by default so existing
+# Old agent versions used E:/ as BASE_PATH. Newer dashboard-local setups often use
+# C:/Users/Administrator/Desktop/MC Server. We scan both by default so existing
 # servers stay visible after updating from the repo.
 DEFAULT_SCAN_ROOTS = [
-    r"E:\",
-    r"C:\Users\Administrator\Desktop\MC Server",
+    "E:/",
+    "C:/Users/Administrator/Desktop/MC Server",
 ]
 
 BASE_PATH = os.getenv("WOX_SERVER_BASE", DEFAULT_SCAN_ROOTS[0])
@@ -40,7 +40,7 @@ DEFAULT_INSTALLERS = [
     {
         "id": "paper",
         "name": "Paper Minecraft Server",
-        "source": r"C:\Web\Management\installers\paper.jar",
+        "source": "C:/Web/Management/installers/paper.jar",
         "target": "server.jar",
         "start_bat": "start.bat",
         "start_content": "java -Xms1G -Xmx4G -jar server.jar nogui\r\npause\r\n",
@@ -48,7 +48,7 @@ DEFAULT_INSTALLERS = [
     {
         "id": "velocity",
         "name": "Velocity Proxy",
-        "source": r"C:\Web\Management\installers\velocity.jar",
+        "source": "C:/Web/Management/installers/velocity.jar",
         "target": "server.jar",
         "start_bat": "start.bat",
         "start_content": "java -Xms512M -Xmx1G -jar server.jar\r\npause\r\n",
@@ -189,7 +189,6 @@ def discover_servers_from_folders(existing_servers=None):
             if not server_id:
                 continue
 
-            # If same folder name exists on two roots, keep first and suffix the rest.
             final_id = server_id
             suffix = 2
             while final_id in existing_servers or final_id in discovered:
