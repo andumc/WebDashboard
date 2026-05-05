@@ -12,13 +12,28 @@ from mcrcon import MCRcon
 
 app = Flask(__name__)
 
-BASE_PATH = os.getenv("WOX_SERVER_BASE", r"C:\Users\Administrator\Desktop\MC Server")
-SERVER_LIST_FILE = os.getenv("WOX_SERVER_LIST", "servers.txt")
-INSTALLER_LIST_FILE = os.getenv("WOX_INSTALLER_LIST", "installers.txt")
-PID_FILE = os.getenv("WOX_AGENT_PID", r"C:\Web\Agent\agent.pid")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-CONSOLE_FILTERS = []
-FILTERED_KEYS = []
+# IMPORTANT:
+# Old agent versions used E:\ as BASE_PATH. Newer dashboard-local setups often use
+# C:\Users\Administrator\Desktop\MC Server. We scan both by default so existing
+# servers stay visible after updating from the repo.
+DEFAULT_SCAN_ROOTS = [
+    r"E:\",
+    r"C:\Users\Administrator\Desktop\MC Server",
+]
+
+BASE_PATH = os.getenv("WOX_SERVER_BASE", DEFAULT_SCAN_ROOTS[0])
+SERVER_SCAN_ROOTS = [
+    p.strip() for p in os.getenv("WOX_SERVER_SCAN_ROOTS", ";".join(DEFAULT_SCAN_ROOTS)).split(";") if p.strip()
+]
+
+SERVER_LIST_FILE = os.getenv("WOX_SERVER_LIST", os.path.join(SCRIPT_DIR, "servers.txt"))
+INSTALLER_LIST_FILE = os.getenv("WOX_INSTALLER_LIST", os.path.join(SCRIPT_DIR, "installers.txt"))
+PID_FILE = os.getenv("WOX_AGENT_PID", os.path.join(SCRIPT_DIR, "agent.pid"))
+
+CONSOLE_FILTERS = ["[RCON", "issued server command:", "UUID of player", "Disconnecting"]
+FILTERED_KEYS = ["enable-rcon", "broadcast-rcon", "rcon.password", "rcon.port", "online-mode", "server-port", "server-ip"]
 
 DEFAULT_SERVERS = {}
 DEFAULT_INSTALLERS = [
@@ -42,14 +57,20 @@ DEFAULT_INSTALLERS = [
 
 EXCLUDED_SERVER_DIRS = {
     "web dashboard",
+    "forwarding secret.txt",
     "system volume information",
     "$recycle.bin",
+    "config",
+    "__pycache__",
+    ".git",
 }
 
 
 def write_pid_file():
     try:
-        os.makedirs(os.path.dirname(PID_FILE), exist_ok=True)
+        pid_dir = os.path.dirname(PID_FILE)
+        if pid_dir:
+            os.makedirs(pid_dir, exist_ok=True)
         with open(PID_FILE, "w", encoding="utf-8") as f:
             f.write(str(os.getpid()))
     except Exception:
@@ -64,6 +85,14 @@ def remove_pid_file():
         pass
 
 
+def write_json_txt(path, data):
+    folder = os.path.dirname(path)
+    if folder:
+        os.makedirs(folder, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+
 def read_json_txt(path, fallback):
     if not os.path.exists(path):
         write_json_txt(path, fallback)
@@ -76,11 +105,6 @@ def read_json_txt(path, fallback):
         return json.loads(content)
     except Exception:
         return fallback
-
-
-def write_json_txt(path, data):
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
 
 
 def sanitize_server_id(value):
@@ -127,52 +151,74 @@ def ensure_start_bat(folder_path):
     return "start.bat"
 
 
+def looks_like_server_folder(folder_path):
+    try:
+        names = set(os.listdir(folder_path))
+    except Exception:
+        return False
+    lowered = {x.lower() for x in names}
+    if "server.properties" in lowered or "velocity.toml" in lowered or "start.bat" in lowered:
+        return True
+    return any(x.endswith(".jar") for x in lowered)
+
+
 def discover_servers_from_folders(existing_servers=None):
     existing_servers = existing_servers or {}
     discovered = {}
-    if not os.path.isdir(BASE_PATH):
-        return discovered
 
-    for name in sorted(os.listdir(BASE_PATH)):
-        folder_path = os.path.join(BASE_PATH, name)
-        if not os.path.isdir(folder_path):
-            continue
-        if name.lower() in EXCLUDED_SERVER_DIRS:
+    for root in SERVER_SCAN_ROOTS:
+        if not os.path.isdir(root):
             continue
 
-        server_id = sanitize_server_id(name)
-        if not server_id or server_id in existing_servers:
+        try:
+            root_entries = sorted(os.listdir(root))
+        except Exception:
             continue
 
-        props_path = os.path.join(folder_path, "server.properties")
-        velocity_path = os.path.join(folder_path, "velocity.toml")
-        has_props = os.path.exists(props_path)
-        has_velocity = os.path.exists(velocity_path)
-        has_start = os.path.exists(os.path.join(folder_path, "start.bat"))
-        has_jar = any(x.lower().endswith(".jar") for x in os.listdir(folder_path))
+        for name in root_entries:
+            if name.lower() in EXCLUDED_SERVER_DIRS:
+                continue
 
-        if not (has_props or has_velocity or has_start or has_jar):
-            continue
+            folder_path = os.path.join(root, name)
+            if not os.path.isdir(folder_path):
+                continue
+            if not looks_like_server_folder(folder_path):
+                continue
 
-        props = read_properties(props_path)
-        server_type = "velocity" if has_velocity or "velocity" in name.lower() else "paper"
-        start_bat = ensure_start_bat(folder_path)
+            server_id = sanitize_server_id(name)
+            if not server_id:
+                continue
 
-        discovered[server_id] = {
-            "name": name,
-            "path": folder_path,
-            "start_bat": start_bat,
-            "rcon_port": int(props.get("rcon.port") or 25575),
-            "rcon_password": props.get("rcon.password") or "change-me",
-            "minecraft_port": int(props.get("server-port") or 25565),
-            "minecraft_host": "127.0.0.1",
-            "rcon_host": "127.0.0.1",
-            "rcon_name": f"{server_id}-rcon",
-            "installer_id": "velocity" if server_type == "velocity" else "paper",
-            "type": server_type,
-            "remote": False,
-            "discovered": True,
-        }
+            # If same folder name exists on two roots, keep first and suffix the rest.
+            final_id = server_id
+            suffix = 2
+            while final_id in existing_servers or final_id in discovered:
+                final_id = f"{server_id}-{suffix}"
+                suffix += 1
+
+            props_path = os.path.join(folder_path, "server.properties")
+            velocity_path = os.path.join(folder_path, "velocity.toml")
+            props = read_properties(props_path)
+            server_type = "velocity" if os.path.exists(velocity_path) or "velocity" in name.lower() or name.lower() == "proxy" else "paper"
+            start_bat = ensure_start_bat(folder_path)
+
+            discovered[final_id] = {
+                "name": name,
+                "path": folder_path,
+                "start_bat": start_bat,
+                "rcon_port": int(props.get("rcon.port") or 25575),
+                "rcon_password": props.get("rcon.password") or "change-me",
+                "minecraft_port": int(props.get("server-port") or 25565),
+                "minecraft_host": "127.0.0.1",
+                "rcon_host": "127.0.0.1",
+                "rcon_name": f"{final_id}-rcon",
+                "installer_id": "velocity" if server_type == "velocity" else "paper",
+                "type": server_type,
+                "remote": False,
+                "discovered": True,
+                "scan_root": root,
+            }
+
     return discovered
 
 
@@ -200,7 +246,6 @@ def load_servers():
 
     if discovered:
         servers.update(discovered)
-        # Auto-fill servers.txt so old folder-based servers become managed entries.
         save_servers(servers)
 
     return servers
@@ -271,6 +316,27 @@ def create_server_files(server):
         if not os.path.exists(eula_path):
             with open(eula_path, "w", encoding="utf-8") as f:
                 f.write("eula=true\n")
+
+
+@app.route("/debug")
+def debug():
+    servers_file_exists = os.path.exists(SERVER_LIST_FILE)
+    roots = []
+    for root in SERVER_SCAN_ROOTS:
+        roots.append({
+            "path": root,
+            "exists": os.path.isdir(root),
+            "entries": sorted(os.listdir(root))[:50] if os.path.isdir(root) else [],
+        })
+    servers = load_servers()
+    return jsonify({
+        "script_dir": SCRIPT_DIR,
+        "server_list_file": SERVER_LIST_FILE,
+        "server_list_file_exists": servers_file_exists,
+        "scan_roots": roots,
+        "server_count": len(servers),
+        "server_ids": list(servers.keys()),
+    })
 
 
 @app.route("/servers")
