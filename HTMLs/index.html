@@ -5,12 +5,17 @@
 <title>Dashboard</title>
 <link rel="icon" href="/dashboard.ico">
 <style>
-body{background:#1a1a1a;color:white;font-family:Arial;padding:30px}.card{background:#2a2a2a;padding:18px;border-radius:12px;margin:12px 0}a{color:#ff9900;text-decoration:none}
+body{background:#1a1a1a;color:white;font-family:Arial;padding:30px}.card{background:#2a2a2a;padding:18px;border-radius:12px;margin:12px 0}a{color:#ff9900;text-decoration:none}.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}.add-server-btn{display:inline-block;background:#ff9900;color:#1a1a1a;font-weight:bold;padding:10px 14px;border-radius:10px}.add-server-btn:hover{background:#ffb84d;color:#1a1a1a}
 </style>
 </head>
 <body>
 <h1>Web Dashboard</h1>
-<p><a href="/files">Open File Browser</a> | <a href="/logout">Logout</a></p>
+<div class="topbar">
+<a class="add-server-btn" href="/edit/dashboard/main.py">+ Add Server</a>
+<a href="/files">Open File Browser</a>
+<span>|</span>
+<a href="/logout">Logout</a>
+</div>
 {% for sid, server in servers.items() %}
 <div class="card"><a href="/server/{{ sid }}">{{ server.name }}</a></div>
 {% endfor %}
