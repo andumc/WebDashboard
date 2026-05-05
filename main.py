@@ -444,6 +444,38 @@ def console(server_id):
 def file_browser_root():
     return render_template("file_browser_roots.html", roots=FILE_BROWSER_ROOTS)
 
+@app.route("/api/servers", methods=["POST"])
+@token_required
+def api_add_server():
+    data = request.get_json(silent=True) or {}
+
+    target = data.get("target", "local")
+
+    if target == "local":
+        if not REMOTE_AGENTS:
+            return jsonify(success=False, error="No agent configured"), 500
+
+        agent = REMOTE_AGENTS[0]
+        agent_url = f"http://{agent['ip']}:{agent['port']}/add_server"
+    else:
+        ip, port = target.split(":", 1)
+        agent_url = f"http://{ip}:{port}/add_server"
+
+    try:
+        res = requests.post(agent_url, json=data, timeout=30)
+    except Exception as e:
+        return jsonify(success=False, error=f"Failed to reach agent: {str(e)}"), 500
+
+    try:
+        payload = res.json()
+    except Exception:
+        return jsonify(
+            success=False,
+            error=f"Agent returned non-JSON/empty response: HTTP {res.status_code} - {res.text[:300]}"
+        ), 502
+
+    return jsonify(payload), res.status_code
+
 @app.route("/files/<root_name>")
 @app.route("/files/<root_name>/<path:subpath>")
 @token_required
