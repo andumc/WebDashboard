@@ -220,13 +220,40 @@ def login():
             return resp
         return render_template("login.html", error="Invalid credentials")
     return render_template("login.html", error="")
-
 @app.route("/logout")
 def logout():
     token = request.cookies.get("token")
     if token in TOKENS:
         del TOKENS[token]
-    resp = make_response(redirect(url_for("login")))
+
+    resp = make_response("""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="refresh" content="5;url=http://192.168.178.40:8002">
+        <title>Logged out</title>
+        <link rel="icon" href="/dashboard.ico">
+        <style>
+            body { background:#1a1a1a; color:#f0f0f0; font-family:Arial; text-align:center; padding:60px; }
+            .box { background:#2a2a2a; max-width:420px; margin:0 auto; padding:30px; border-radius:12px; }
+            a { color:#ff9900; }
+        </style>
+        <script>
+            setTimeout(function () {
+                window.location.href = "http://192.168.178.40:8002";
+            }, 5000);
+        </script>
+    </head>
+    <body>
+        <div class="box">
+            <h1>Logged out</h1>
+            <p>You will be redirected to the main website in about 5 seconds.</p>
+            <p><a href="http://192.168.178.40:8002">Click here if nothing happens.</a></p>
+        </div>
+    </body>
+    </html>
+    """)
     resp.delete_cookie("token")
     return resp
 
